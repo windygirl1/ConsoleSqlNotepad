@@ -1,10 +1,9 @@
 ﻿  main.cpp
-D:\Cpp\ConsoleSqlNotepad\main.cpp(41,18): warning C4101: res_set: неиспользованная локальная переменная
      Создается библиотека D:\Cpp\ConsoleSqlNotepad\x64\Release\ConsoleSqlNotepad.lib и объект D:\Cpp\ConsoleSqlNotepad\x64\Release\ConsoleSqlNotepad.exp
   Создание кода
-  0 of 186 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  1 of 237 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    50 functions had inline decision re-evaluated but remain unchanged
   Создание кода завершено
 mysqlcppconn-static.lib(mysql_driver.obj) : warning LNK4099: "" PDB не найден с "mysqlcppconn-static.lib(mysql_driver.obj)" или на ""; компоновка объекта выполняется как при отсутствии отладочных данных
 mysqlcppconn-static.lib(mysql_connection.obj) : warning LNK4099: "" PDB не найден с "mysqlcppconn-static.lib(mysql_connection.obj)" или на ""; компоновка объекта выполняется как при отсутствии отладочных данных
