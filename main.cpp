@@ -10,9 +10,9 @@
 #include <cppconn/resultset.h>
 
 // Variables to work with
-const std::string SERVER = "tcp://localhost:3306";
-const std::string USER = "root";
-const std::string PASSWORD = "";
+const std::string SERVER = "tcp://localhost:*****";
+const std::string USER = "*******";
+const std::string PASSWORD = "*******";
 const std::string NAMEOFDB = "notepad";
 const std::string TABLENAME = "tableNotepad";
 
@@ -137,6 +137,7 @@ int main() {
 
 	std::cout << "To view all commands, type help." << "\n" << std::endl;
 
+	//The main cycle of the program
 	while (true) {
 		std::cout << "\n" << "> ";
 		std::getline(std::cin, command);
@@ -150,11 +151,13 @@ int main() {
 
 		if (command == "help" || command == "hp") {
 			isCommandKnow = true;
-			std::cout << "exit - Closing the program." << std::endl;
-			std::cout << "add - Add a new entry." << std::endl;
-			std::cout << "getposts - Get list of posts." << std::endl;
-			std::cout << "update - Update post in database. Must be used with a parameter to access a specific post. Example: 'update 1'." << std::endl;
-			std::cout << "post - Get post from database. Must be used with a parameter to access a specific post. Example: 'post 1'." << std::endl;
+			std::cout << "exit - Closing the program." << "\n" << std::endl;
+			std::cout << "add - Add a new entry." << "\n" << std::endl;
+			std::cout << "getposts - Get list of posts." << "\n" << std::endl;
+			std::cout << "update - Update post in database. Must be used with a parameter to access a specific post. Example: 'update 1'." << "\n" << std::endl;
+			std::cout << "post - Get post from database. Must be used with a parameter to access a specific post. Example: 'post 1'." << "\n" << std::endl;
+			std::cout << "delete - Delete one specific post. Must be used with a parameter to access a specific post. Example: 'delete 1'." << "\n" << std::endl;
+			std::cout << "deleteall - Remove all posts from the table. " << "\n" << std::endl;
 		}
 
 		if (command == "add") {
@@ -195,18 +198,27 @@ int main() {
 				stmt = conn->createStatement();
 				res_set = stmt->executeQuery("SELECT * FROM " + TABLENAME);
 
-				while (res_set->next()) {
-					int id = res_set->getInt("id");
-					std::string title = res_set->getString("title");
-					std::string text = res_set->getString("text");
-					std::string date = res_set->getString("date");
+				if (!res_set->next()) {
+					std::cout << "You do not have any entries." << "\n" << std::endl;
+				} else {
+					res_set->beforeFirst();
+					while (res_set->next()) {
+						int id = res_set->getInt("id");
+						std::string title = res_set->getString("title");
+						std::string text = res_set->getString("text");
+						std::string date = res_set->getString("date");
 
-					std::cout << "ID: " << id << std::endl;
-					std::cout << "Title: " << title << std::endl;
-					std::cout << "Text: " << text << std::endl;
-					std::cout << "Date: " << date << std::endl;
-					std::cout << "-------------------------------" << "\n" << std::endl;
+						std::cout << "ID: " << id << std::endl;
+						std::cout << "-------------------------------" << "\n" << std::endl;
+						std::cout << "Title: " << title << std::endl;
+						std::cout << "-------------------------------" << "\n" << std::endl;
+						std::cout << "Text: " << text << std::endl;
+						std::cout << "-------------------------------" << "\n" << std::endl;
+						std::cout << "Date: " << date << std::endl;
+						std::cout << "-------------------------------" << "\n" << std::endl << std::endl;
+					}
 				}
+
 
 				if (stmt != nullptr) {
 					delete stmt;
@@ -307,8 +319,11 @@ int main() {
 					std::string date = res_set->getString("date");
 
 					std::cout << "ID: " << id << std::endl;
+					std::cout << "-------------------------------" << "\n" << std::endl;
 					std::cout << "Title: " << title << std::endl;
+					std::cout << "-------------------------------" << "\n" << std::endl;
 					std::cout << "Text: " << text << std::endl;
+					std::cout << "-------------------------------" << "\n" << std::endl;
 					std::cout << "Date: " << date << std::endl;
 
 					if (res_set != nullptr) {
@@ -340,6 +355,110 @@ int main() {
 				if (stmt != nullptr) {
 					delete stmt;
 				}
+			}
+		}
+
+		if (command == "delete" && parametr != "" || command == "dl" && parametr != "") {
+			isCommandKnow = true;
+			try {
+				stmt = conn->createStatement();
+				res_set = stmt->executeQuery("SELECT * FROM " + TABLENAME + " WHERE id = " + parametr);
+				
+
+				std::string areYouSure;
+				
+				if (res_set->next()) {
+					std::cout << "Are you sure you want to delete this entry? Y/N" << "\n" << std::endl;
+					int id = res_set->getInt("id");
+					std::string title = res_set->getString("title");
+					std::string text = res_set->getString("text");
+					std::string date = res_set->getString("date");
+
+					std::cout << "ID: " << id << std::endl;
+					std::cout << "-------------------------------" << "\n" << std::endl;
+					std::cout << "Title: " << title << std::endl;
+					std::cout << "-------------------------------" << "\n" << std::endl;
+					std::cout << "Text: " << text << std::endl;
+					std::cout << "-------------------------------" << "\n" << std::endl;
+					std::cout << "Date: " << date << std::endl;
+
+					std::getline(std::cin, areYouSure);
+
+					if (res_set != nullptr) {
+						delete res_set;
+					}
+
+				}
+				else {
+					std::cout << "Field with parameter '" << parametr << "' does not exist in the database." << std::endl;
+
+					if (res_set != nullptr) {
+						delete res_set;
+					}
+
+					if (stmt != nullptr) {
+						delete stmt;
+					}
+				}
+
+				if (areYouSure == "Y") {
+					try {
+						stmt->execute("DELETE FROM " + TABLENAME + " WHERE id = " + parametr);
+						std::cout << "Entry successfully deleted." << std::endl;
+						if (stmt != nullptr) {
+							delete stmt;
+						}
+					} catch (sql::SQLException& ex) {
+						std::cout << "Failed to delete entry: " << "\n" << std::endl;
+						if (stmt != nullptr) {
+							delete stmt;
+						}
+					}
+				} else {
+					std::cout << "The entry was not deleted." << "\n" << std::endl;
+					if (stmt != nullptr) {
+						delete stmt;
+					}
+				}
+			} catch (sql::SQLException& ex) {
+				std::cout << "Post not found: " << ex.what() << "\n" << std::endl;
+
+				if (res_set != nullptr) {
+					delete res_set;
+				}
+
+				if (stmt != nullptr) {
+					delete stmt;
+				}
+			}
+		}
+
+		if (command == "deleteall" || command == "dall") {
+			isCommandKnow = true;
+			std::string areYouSure;
+			std::cout << "If you are sure you want to delete ALL entries, enter this: " << TABLENAME << "\n" << std::endl;
+			std::getline(std::cin, areYouSure);
+
+			if (areYouSure == TABLENAME) {
+				try {
+					stmt = conn->createStatement();
+					stmt->execute("TRUNCATE " + TABLENAME);
+
+					stmt->execute("ALTER TABLE " + TABLENAME + " AUTO_INCREMENT = 1");
+
+					std::cout << "All entries were successfully deleted." << std::endl;
+
+					if (stmt != nullptr) {
+						delete stmt;
+					}
+				} catch (sql::SQLException& ex) {
+					std::cout << "Failed to delete entries: " << ex.what() << "\n" << std::endl;
+					if (stmt != nullptr) {
+						delete stmt;
+					}
+				}
+			} else {
+				std::cout << "You entered the confirmation incorrectly: " << areYouSure << " != " << TABLENAME << "\n" << std::endl;
 			}
 		}
 
